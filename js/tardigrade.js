@@ -1,7 +1,6 @@
 "use strict";
 (() => {
 
-
     const TardigradeStoreRegistry = {},
           TardigradeNameSpace = [ "_reflects", "_states", "_registry", "_volumes" ];
 
@@ -72,7 +71,8 @@
             };
             this._registry = {
                 ranged: [],
-                locked: []
+                locked: [],
+                keys: []
             };
             this._volumes = {};
             return this.initialize(options);
@@ -81,14 +81,11 @@
         initialize(options = {}){
             if(!this._states.initialized){
                 if(Typo.isObject(options) && Object.entries(options).length){
-
                     let {key} = options;
-
                     if(Typo.isString(key) && key.length){
                         this.key = key;
                         delete options.key;
                     }
-
                     for(let [key, volume] of Object.entries(options)){
                         this.addVolume(key, volume);
                     }
@@ -99,29 +96,22 @@
         }
 
         addVolume(key, volume){
-            if(!TardigradeNameSpace.includes(key) && Typo.isScalar(volume) && Typo.isntDef(this._volumes[key])){
-                const scope = this;
-                this._volumes[key] = Interface.volume(volume);
-                Object.defineProperties(this, {
-                    [key]: {
-                        get(){
-                            return scope._volumes[key].volume;
-                        },
-                        set(value){
-                            let volumeItem = scope._volumes[key];
-                            if(Typo.typeOf(value) === volumeItem.type && value !== volumeItem.volume){
-                                volumeItem.volume = value;
-                                scope._callReflect(key);
-                                return true;
-                            }
-                        }
-                    }
-                });
+            if(!TardigradeNameSpace.includes(key)
+                && Typo.isScalar(volume)
+                && !this.isVolumeExist(key)){
+                    this._volumes[key] = Interface.volume(volume);
+                    this._updateRegistryKeys()
+                        ._addDescriptor(key);
             }
+            return this;
         }
 
         removeVolume(key){
 
+        }
+
+        isVolumeExist(key){
+            return this._registry.keys.includes(key)
         }
 
         addReflect(key, reflect){
@@ -162,6 +152,35 @@
 
         _callReflect(key){
             console.log(`Reflect for ${key}`);
+            return this;
+        }
+
+        _updateRegistryKeys(){
+            const {_registry, _volumes} = this;
+            _registry.keys = Object.keys(_volumes);
+            return this;
+        }
+
+        _addDescriptor(key){
+            const scope = this;
+            Object.defineProperties(this, {
+                [key]: {
+                    get(){
+                        return scope._volumes[key].volume;
+                    },
+                    set(value){
+                        let volumeItem = scope._volumes[key];
+                        if(Typo.typeOf(value) === volumeItem.type){
+                            if(value !== volumeItem.volume){
+                                volumeItem.volume = value;
+                                scope._callReflect(key);
+                            }
+                            return true;
+                        }
+                    }
+                }
+            });
+            return this;
         }
 
     }
