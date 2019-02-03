@@ -12,12 +12,21 @@
     <script>
             const [storeA, storeB] = Tardigrade.create({ a: 1, b: true }, { z: {}, b: "text" })
                                                 .queryAll();
+
+            storeA.addReflect("a", value => alert(value));
+
             storeA.a = "a";
             storeA.a = 12;
             storeA.b = false;
+            storeB.addVolume("dimsiazx", "dksal");
             storeA.addVolume("razor", 2);
             storeB.addVolume("size", 2);
+            storeA.a = 15;
             console.log(storeA);
+            console.log(storeB);
+            storeA.a = 19;
+            console.log(storeA);
+
     </script>
 </body>
 </html>

@@ -57,6 +57,9 @@
         static isScalar(object = null){
             return Typo.isNumber(object) || Typo.isString(object) || Typo.isBoolean(object);
         }
+        static isFn(object = null){
+            return Typo.typeOf(object) === "function";
+        }
     }
 
 
@@ -81,7 +84,7 @@
         initialize(options = {}){
             if(!this._states.initialized){
                 if(Typo.isObject(options) && Object.entries(options).length){
-                    let {key} = options;
+                    const {key} = options;
                     if(Typo.isString(key) && key.length){
                         this.key = key;
                         delete options.key;
@@ -106,20 +109,26 @@
             return this;
         }
 
-        removeVolume(key){
-
-        }
-
         isVolumeExist(key){
             return this._registry.keys.includes(key)
         }
 
-        addReflect(key, reflect){
+        isReflectExist(key){
+            return Object.keys(this._reflects).includes(key);
+        }
 
+        addReflect(key, reflect){
+            if(this.isVolumeExist(key) && Typo.isFn(reflect)){
+                this._reflects[key] = reflect;
+            }
+            return this;
         }
 
         removeReflect(key){
-
+            if(this.isReflectExist(key)){
+                delete this._reflects[key];
+            }
+            return this;
         }
 
         addRange(key, range){
@@ -151,7 +160,10 @@
         }
 
         _callReflect(key){
-            console.log(`Reflect for ${key}`);
+            if(this.isReflectExist(key)){
+                console.log(this._reflects[key]);
+                this._reflects[key](this._volumes[key].volume);
+            }
             return this;
         }
 
@@ -182,6 +194,8 @@
             });
             return this;
         }
+
+
 
     }
 
