@@ -73,8 +73,8 @@
                 initialized: false
             };
             this._registry = {
-                ranged: [],
-                locked: [],
+                ranges: [],
+                locks: [],
                 keys: []
             };
             this._volumes = {};
