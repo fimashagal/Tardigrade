@@ -10,20 +10,14 @@
 <body>
     <script src="js/tardigrade.js"></script>
     <script>
-            const [storeA, storeB] = Tardigrade.create({
-                                                    a: 1,
-                                                    b: true
-                                                }, {
-                                                    z: {},
-                                                    b: "text"
-                                                })
+            const [storeA, storeB] = Tardigrade.create({ a: 1, b: true }, { z: {}, b: "text" })
                                                 .queryAll();
             storeA.a = "a";
             storeA.a = 12;
             storeA.b = false;
             storeA.addVolume("razor", 2);
             storeB.addVolume("size", 2);
-            console.log(storeA, storeB);
+            console.log(Tardigrade);
     </script>
 </body>
 </html>

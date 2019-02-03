@@ -2,11 +2,11 @@
 (() => {
 
 
-    const TardigradeStoreRegistry = {};
-    const TardigradeNameSpace = [ "_reflects", "_states", "_registry", "_volumes" ];
+    const TardigradeStoreRegistry = {},
+          TardigradeNameSpace = [ "_reflects", "_states", "_registry", "_volumes" ];
 
-    /* Utils */
-    class Utils {
+    /* Util */
+    class Util {
         static hash(){
             return btoa(`${Math.round(Date.now() / Math.random())}`)
                     .replace(/=/g, '')
@@ -20,7 +20,7 @@
     /* Interfaces */
 
     class Interface {
-        static volume(volume = null){
+        static volume(volume){
             return {
                 volume: volume,
                 type: Typo.typeOf(volume)
@@ -65,7 +65,7 @@
 
     class TardigradeStore {
         constructor(options = {}){
-            this.key = Utils.hash();
+            this.key = Util.hash();
             this._reflects = {};
             this._states = {
                 initialized: false
@@ -83,10 +83,12 @@
                 if(Typo.isObject(options) && Object.entries(options).length){
 
                     let {key} = options;
+
                     if(Typo.isString(key) && key.length){
                         this.key = key;
                         delete options.key;
                     }
+
                     for(let [key, volume] of Object.entries(options)){
                         this.addVolume(key, volume);
                     }
@@ -97,12 +99,9 @@
         }
 
         addVolume(key, volume){
-            if(!TardigradeNameSpace.includes(key) && Typo.isScalar(volume)){
+            if(!TardigradeNameSpace.includes(key) && Typo.isScalar(volume) && Typo.isntDef(this._volumes[key])){
                 const scope = this;
-                this._volumes[key] = {
-                    volume: volume,
-                    type: Typo.typeOf(volume)
-                };
+                this._volumes[key] = Interface.volume(volume);
                 Object.defineProperties(this, {
                     [key]: {
                         get(){
@@ -153,6 +152,14 @@
 
         }
 
+        is(key){
+
+        }
+
+        isnt(key){
+
+        }
+
         _callReflect(key){
             console.log(`Reflect for ${key}`);
         }
@@ -188,7 +195,7 @@
 
         static create(...args){
             if(!args.length){
-                Utils.warn("Add object or few for store creating");
+                Util.warn("Add object or few for store creating");
             }
 
             if(args.length === 1){
@@ -213,7 +220,7 @@
 
         static remove(...keys){
             if(!keys.length) {
-                Utils.warn("Nothing was deleted");
+                Util.warn("Nothing was deleted");
                 return;
             }
             if(keys.length === 1 && Typo.isDef(keys[0]) && TardigradeStoreRegistry.hasOwnProperty(keys[0].toString())){
