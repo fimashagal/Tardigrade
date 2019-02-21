@@ -29,16 +29,27 @@
                 }
             };
             if(type === "number"){
-                response.range = {
-                    state: false,
-                    nx: Interface.nx(0, 1)
-                };
+                response.range = Interface.range();
             }
             return response;
         }
 
         static nx(n = 0, x = 1){
             return [n, x];
+        }
+
+        static overflowReflects(min, max){
+            return {min, max};
+        }
+
+        static range(state = false, nx = [0, 1], reflects = {min: null, max: null}){
+            const [n, x] = nx,
+                  {min, max} = reflects;
+            return {
+                state: false,
+                nx: Interface.nx(n, x),
+                overflowReflects: Interface.overflowReflects(min, max)
+            };
         }
     }
 
