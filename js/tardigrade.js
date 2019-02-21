@@ -2,7 +2,7 @@
 (() => {
 
     const TardigradeStoreRegistry = {},
-          TardigradeNameSpace = [ "_reflects", "_states", "_registry", "_volumes" ];
+          TardigradeNameSpace = [ "_reflects", "_states", "_volumes" ];
 
     /* Util */
     class Util {
@@ -20,10 +20,25 @@
 
     class Interface {
         static volume(volume){
-            return {
+            const type = Typo.typeOf(volume);
+            const response = {
                 volume: volume,
-                type: Typo.typeOf(volume)
+                type: type,
+                lock: {
+                    state: false
+                }
             };
+            if(type === "number"){
+                response.range = {
+                    state: false,
+                    nx: Interface.nx(0, 1)
+                };
+            }
+            return response;
+        }
+
+        static nx(n = 0, x = 1){
+            return [n, x];
         }
     }
 
@@ -72,11 +87,6 @@
             this._states = {
                 initialized: false
             };
-            this._registry = {
-                ranges: [],
-                locks: [],
-                keys: []
-            };
             this._volumes = {};
             return this.initialize(options);
         }
@@ -103,18 +113,19 @@
                 && Typo.isScalar(volume)
                 && !this.isVolumeExist(key)){
                     this._volumes[key] = Interface.volume(volume);
-                    this._updateRegistryKeys()
-                        ._addDescriptor(key);
+                    this._addDescriptor(key);
             }
             return this;
         }
 
         isVolumeExist(key){
-            return this._registry.keys.includes(key)
+            return Object.keys(this._volumes)
+                         .includes(key)
         }
 
         isReflectExist(key){
-            return Object.keys(this._reflects).includes(key);
+            return Object.keys(this._reflects)
+                         .includes(key);
         }
 
         addReflect(key, reflect){
@@ -131,12 +142,33 @@
             return this;
         }
 
-        addRange(key, range){
-
+        addRange(key, range = Interface.nx(0, 1)){
+            if(!this.isVolumeExist(key)
+                || this._volumes[key].type !== "number"
+                || !Array.isArray(range)
+                || range.length !== 2
+                || range.some(item => !Typo.isNumber(item))){
+                    return this;
+            }
+            const volume = this._volumes[key];
+            volume.range.state = true;
+            volume.range.nx = range;
+            return this;
         }
 
         removeRange(key){
+            if(!this.isVolumeExist(key)){
+                return this;
+            }
+            return this;
+        }
 
+        isRanged(key){
+            if(!this.isVolumeExist(key)){
+                return false;
+            }
+            const {type, range} = this._volumes[key];
+            return type === "number" && range.state;
         }
 
         addLock(key){
@@ -147,29 +179,22 @@
 
         }
 
-        retypeVolume(key, type){
+        isLocked(key){
 
         }
 
-        is(key){
+        is(key, reverseCallback){
 
         }
 
-        isnt(key){
+        isnt(key, reverseCallback){
 
         }
 
         _callReflect(key){
             if(this.isReflectExist(key)){
-                console.log(this._reflects[key]);
                 this._reflects[key](this._volumes[key].volume);
             }
-            return this;
-        }
-
-        _updateRegistryKeys(){
-            const {_registry, _volumes} = this;
-            _registry.keys = Object.keys(_volumes);
             return this;
         }
 
@@ -183,6 +208,9 @@
                     set(value){
                         let volumeItem = scope._volumes[key];
                         if(Typo.typeOf(value) === volumeItem.type){
+                            if(scope.isRanged(key)){
+                                value = scope._holdInRange(value, volumeItem.range.nx);
+                            }
                             if(value !== volumeItem.volume){
                                 volumeItem.volume = value;
                                 scope._callReflect(key);
@@ -193,6 +221,16 @@
                 }
             });
             return this;
+        }
+
+        _holdInRange(value, [n, x] = Interface.nx(0, 1)){
+            if(value < n) {
+                value = n;
+            }
+            if(value > x){
+                value = x;
+            }
+            return value;
         }
 
 
