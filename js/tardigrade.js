@@ -120,6 +120,11 @@
         }
 
         addVolume(key, volume){
+            if(Typo.isObject(key) && Object.keys(key).length){
+                for(let [volumeKey, volumeValue] of Object.entries(key)){
+                    this.addVolume(volumeKey, volumeValue);
+                }
+            }
             if(!TardigradeNameSpace.includes(key)
                 && Typo.isScalar(volume)
                 && !this.isVolumeExist(key)){
