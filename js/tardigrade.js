@@ -19,17 +19,17 @@
     /* Interfaces */
 
     class Interface {
+        static state(state = false){
+            return { state };
+        }
+
         static volume(volume){
             const type = Typo.typeOf(volume);
             const response = {
                 volume: volume,
                 type: type,
-                lock: {
-                    state: false
-                },
-                affect: {
-                    state: false
-                }
+                lock: Interface.state(),
+                affect: Interface.state()
             };
             if(type === "number"){
                 response.range = Interface.range();
@@ -98,6 +98,7 @@
         constructor(options = {}){
             this.key = Util.hash();
             this._reflects = {};
+            this._affects = {};
             this._states = {
                 initialized: false
             };
