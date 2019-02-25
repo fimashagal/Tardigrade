@@ -16,9 +16,9 @@
                 key: "Tardigrade Store"
             }).queryAll();
 
-            store.addReflect("a", value => alert(`Integer was ${value}`))
-                 .addReflect("b", value => alert(`Boolean was ${value}`))
-                 .addRange("a", [-5, 14]);
+            store.addReflect("a", value => console.log(`Integer was ${value}`))
+                 .addReflect("b", value => console.log(`Boolean was ${value}`))
+                 .addRange("a", [-5, 14], () => console.log("Min overflow reflect"), () => console.log("Max overflow reflect"));
 
             store.a = 12;
             store.a = 13;
@@ -27,8 +27,8 @@
             store.a = 11;
             store.b = 80;
             store.a = -40;
-
-            console.log(store.isRanged("a"));
+            store.a = 120;
+            store.b = false;
 
 
 

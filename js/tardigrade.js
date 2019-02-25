@@ -153,7 +153,7 @@
             return this;
         }
 
-        addRange(key, range = Interface.nx(0, 1)){
+        addRange(key, range = Interface.nx(0, 1), overflowNReflect = null, overflowXReflect = null){
             if(!this.isVolumeExist(key)
                 || this._volumes[key].type !== "number"
                 || !Array.isArray(range)
@@ -164,6 +164,7 @@
             const volume = this._volumes[key];
             volume.range.state = true;
             volume.range.nx = range;
+            volume.range.overflowReflects = Interface.overflowReflects(overflowNReflect, overflowXReflect);
             return this;
         }
 
@@ -220,7 +221,8 @@
                         let volumeItem = scope._volumes[key];
                         if(Typo.typeOf(value) === volumeItem.type){
                             if(scope.isRanged(key)){
-                                value = scope._holdInRange(value, volumeItem.range.nx);
+                                const {nx, overflowReflects} = volumeItem.range;
+                                value = scope._holdInRange(value, nx, overflowReflects);
                             }
                             if(value !== volumeItem.volume){
                                 volumeItem.volume = value;
@@ -234,12 +236,14 @@
             return this;
         }
 
-        _holdInRange(value, [n, x] = Interface.nx(0, 1)){
+        _holdInRange(value, [n, x] = Interface.nx(0, 1), {min, max} = Interface.overflowReflects(null, null)){
             if(value < n) {
                 value = n;
+                Typo.isFn(min) && min(value);
             }
             if(value > x){
                 value = x;
+                Typo.isFn(max) && max(value);
             }
             return value;
         }
