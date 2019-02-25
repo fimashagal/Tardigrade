@@ -2,7 +2,7 @@
 (() => {
 
     const TardigradeStoreRegistry = {},
-          TardigradeNameSpace = [ "_reflects", "_states", "_volumes" ];
+          TardigradeNameSpace = [ "_reflects", "_affects", "_states", "_volumes" ];
 
     /* Util */
     class Util {
@@ -26,6 +26,9 @@
                 type: type,
                 lock: {
                     state: false
+                },
+                affect: {
+                    state: false
                 }
             };
             if(type === "number"){
@@ -39,10 +42,10 @@
         }
 
         static overflowReflects(min, max){
-            return {min, max};
+            return { min, max };
         }
 
-        static range(state = false, nx = [0, 1], reflects = {min: null, max: null}){
+        static range(state = false, nx = [0, 1], reflects = { min: null, max: null }){
             const [n, x] = nx,
                   {min, max} = reflects;
             return {
@@ -197,6 +200,18 @@
         }
 
         isLocked(key){
+
+        }
+
+        addAffect(key, affect){
+
+        }
+
+        removeAffect(key){
+
+        }
+
+        isAffected(key){
 
         }
 
